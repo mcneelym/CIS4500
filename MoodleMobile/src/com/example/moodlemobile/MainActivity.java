@@ -27,7 +27,6 @@ public class MainActivity extends Activity {
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 * blah
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupActionBar() {
