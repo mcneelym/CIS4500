@@ -19,6 +19,8 @@ public class MoodleRestService {
 	private String fname;
 	private String lname;
 	private long userid;
+	private long currentCourseId = -1;
+	
 	private static MoodleRestService service = null;
 	
 	public String getToken() {
@@ -27,6 +29,25 @@ public class MoodleRestService {
 	
 	public long getUserId() {
 		return userid;
+	}
+	
+	public void setCurrentCourseId(long id) {
+		currentCourseId = id;
+	}
+	
+	public long getCurrentCourseId() {
+		return currentCourseId;
+	}
+	
+	public void logout() {
+		url = "";
+		token = "";
+		username = "";
+		fname = "";
+		lname = "";
+		userid = 0;
+		currentCourseId = -1;
+		service = null;
 	}
 	
 	private MoodleRestService(String url, String username, String password) throws IOException, JSONException {
@@ -58,6 +79,7 @@ public class MoodleRestService {
 		
 		URL obj = new URL(url);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+		con.addRequestProperty("Cache-Control", "max-age=0");
 		con.setRequestMethod("POST");
  
 		con.setDoOutput(true);
@@ -125,7 +147,12 @@ public class MoodleRestService {
 	}
 	
 	public String getCourses() throws IOException {
-		String json = callMoodleFunction("moodle_webservice_get_siteinfo", "");
+		String json = callMoodleFunction("moodle_enrol_get_users_courses", "userid="+this.userid);
+		return json;
+	}
+	
+	public String getCourseInformation(long courseid) throws IOException {
+		String json = callMoodleFunction("core_course_get_contents", "courseid="+courseid);
 		return json;
 	}
 	

@@ -7,5 +7,6 @@
     <string name="title_activity_main">Main</string>
     <string name="login_title">Login</string>
     <string name="title_activity_course_main">CourseMain</string>
+    <string name="title_activity_select_courses">SelectCoursesActivity</string>
 
 </resources>

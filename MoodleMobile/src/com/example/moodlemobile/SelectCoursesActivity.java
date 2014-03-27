@@ -10,15 +10,14 @@ import org.json.JSONObject;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class CourseMain extends ListActivity {
-	
-	
+public class SelectCoursesActivity extends ListActivity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +28,10 @@ public class CourseMain extends ListActivity {
 
 	@Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
-
+		Intent data = new Intent();
+		data.putExtra("course", id);
+		setResult(RESULT_OK, data);
+		finish();
     }
 	
 	private class GetCoursesTask extends AsyncTask<String, Void, HashMap<String,Long>> {
@@ -71,8 +73,15 @@ public class CourseMain extends ListActivity {
 		@Override
 		protected void onPostExecute(HashMap<String,Long> result) {
 			if (result != null) {
-				CourseArrayAdapter adapter = new CourseArrayAdapter(mContext, R.layout.row_layout, result);
-				((ListActivity)mContext).setListAdapter(adapter);
+				if (result.size() > 1) {
+					CourseArrayAdapter adapter = new CourseArrayAdapter(mContext, R.layout.row_layout, result);
+					((ListActivity)mContext).setListAdapter(adapter);
+				} else if (result.size() == 1) {
+					Intent data = new Intent();
+					data.putExtra("course", result.get(result.keySet().toArray()[0]));
+					setResult(RESULT_OK, data);
+					finish();
+				}
 			}
 			else
 			{
