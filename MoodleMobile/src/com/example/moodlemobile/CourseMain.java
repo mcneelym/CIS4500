@@ -14,8 +14,7 @@ import android.os.Bundle;
 import android.util.SparseArray;
 
 public class CourseMain extends ExpandableListActivity {
-	
-	
+
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +46,18 @@ public class CourseMain extends ExpandableListActivity {
 					JSONObject json_data = null;
 					for (int i = 0; i < jArray.length(); i++) {
 						json_data = jArray.getJSONObject(i);
-						Group g = new Group(json_data.getString("name"), json_data.getLong("id"), json_data.getInt("visible"));
-						JSONArray childArray = json_data.getJSONArray("modules");
-						for (int j = 0; j < childArray.length(); j++) {
-							JSONObject childData = childArray.getJSONObject(j);
-							GroupChild c = new GroupChild(childData.getString("name"), childData.getString("url"), childData.getString("modicon"), childData.getLong("id"), childData.getInt("visible"));
-							g.children.add(c);
+						if (json_data.getInt("visible") == 1) {
+							Group g = new Group(json_data.getString("name"), json_data.getLong("id"));
+							JSONArray childArray = json_data.getJSONArray("modules");
+							for (int j = 0; j < childArray.length(); j++) {
+								JSONObject childData = childArray.getJSONObject(j);
+								if (childData.getInt("visible") == 1) {
+									GroupChild c = new GroupChild(childData.getString("name"), childData.getString("url"), childData.getString("modicon"), childData.getLong("id"));
+									g.children.add(c);
+								}
+							}
+							array.append(i, g);
 						}
-						array.append(i, g);
 					}
 				} catch (JSONException e) {
 					return null;
@@ -85,12 +88,10 @@ public class CourseMain extends ExpandableListActivity {
 		public String url;
 		public String modIcon;
 		public long id;	
-		public int visible;
 		
-		public GroupChild(String name, String url, String modIcon, long id, int visible) {
+		public GroupChild(String name, String url, String modIcon, long id) {
 			this.name = name;
 			this.id = id;
-			this.visible = visible;
 			this.url = url;
 			this.modIcon = modIcon;
 		}
@@ -100,13 +101,11 @@ public class CourseMain extends ExpandableListActivity {
 		
 		public String name;
 		public long id;
-		public int visible;
 		public final List<GroupChild> children = new ArrayList<GroupChild>();
 		
-		public Group(String name, long id, int visible) {
+		public Group(String name, long id) {
 			this.name = name;
 			this.id = id;
-			this.visible = visible;
 		}
 	
 	} 

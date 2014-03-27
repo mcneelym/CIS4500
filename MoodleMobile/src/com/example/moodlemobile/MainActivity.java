@@ -91,9 +91,16 @@ public class MainActivity extends Activity {
 	  }
 	} 
 	
-	/** Called when the user clicks the Login button */
+	/** Called when the user clicks the course contents button */
 	public void courseContents(View view) {
 		Intent intent = new Intent(this, CourseMain.class);
+		this.startActivity(intent);
+	}
+	
+	/** Called when the user clicks the logout button */
+	public void logout(View view) {
+		MoodleRestService.getService().logout();
+		Intent intent = new Intent(this, LoginScreen.class);
 		this.startActivity(intent);
 	}
 
