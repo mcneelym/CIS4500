@@ -7,11 +7,17 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MoodleRestService {
 
 	private String url;
 	private String token;
+	private String username;
+	private String fname;
+	private String lname;
 	private long userid;
 	private static MoodleRestService service = null;
 	
@@ -23,18 +29,19 @@ public class MoodleRestService {
 		return userid;
 	}
 	
-	private MoodleRestService(String url, String username, String password) throws IOException {
+	private MoodleRestService(String url, String username, String password) throws IOException, JSONException {
 		this.url = url;
 		setToken(username, password);
 		this.url = url + "webservice/rest/server.php";
-		//MoodleWebService web = MoodleRestWebService.getSiteInfo();
-		//userid = web.getUserId();
+		getUserInfo();
 	}
 	
 	public static MoodleRestService init(String url, String username, String password) {
 		try {
 			service = new MoodleRestService(url, username, password);
 		} catch (IOException e) {
+			return null;
+		} catch (JSONException e) {
 			return null;
 		}
 		return service;
@@ -77,5 +84,49 @@ public class MoodleRestService {
 		}
 	}
 
+	public String callMoodleFunction(String function, String options) throws IOException {
+		String params = "moodlewsrestformat=json&wsfunction=" + function + "&wstoken=" + token + "&" + options;
+		URL obj = new URL(url);
+		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+		con.setRequestMethod("POST");
+ 
+		con.setDoOutput(true);
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		wr.writeBytes(params);
+		wr.flush();
+		wr.close();
+		int responseCode = con.getResponseCode();
+
+		if (responseCode == 200) {
+			BufferedReader in = new BufferedReader(
+			        new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+	 
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			return response.toString();
+		} else {
+			//TODO: throw error
+			return null;
+		}
+	}
+	
+	private void getUserInfo() throws IOException, JSONException {
+		String json = callMoodleFunction("moodle_webservice_get_siteinfo", "");
+
+		JSONObject jObject = new JSONObject(json);
+		userid = jObject.getLong("userid");
+		fname = jObject.getString("firstname");
+		lname = jObject.getString("lastname");
+		username = jObject.getString("username");
+	}
+	
+	public String getCourses() throws IOException {
+		String json = callMoodleFunction("moodle_webservice_get_siteinfo", "");
+		return json;
+	}
 	
 }

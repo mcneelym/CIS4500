@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		if (true){
+		if (MoodleRestService.getService() == null || MoodleRestService.getService().getToken().isEmpty()){
 			Intent intent = new Intent(this, LoginScreen.class);
 			this.startActivityForResult(intent, REQUEST_CODE);
 		}
