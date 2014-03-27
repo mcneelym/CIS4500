@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.support.v4.app.NavUtils;
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -66,5 +67,11 @@ public class MainActivity extends Activity {
 	    
 	  }
 	} 
+	
+	/** Called when the user clicks the Login button */
+	public void courseContents(View view) {
+		Intent intent = new Intent(this, CourseMain.class);
+		this.startActivity(intent);
+	}
 
 }

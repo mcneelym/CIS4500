@@ -1,13 +1,8 @@
 package com.example.moodlemobile;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import net.beaconhillcott.moodlerest.MoodleCourse;
-import net.beaconhillcott.moodlerest.MoodleRestEnrol;
-import net.beaconhillcott.moodlerest.MoodleRestException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,7 +29,7 @@ public class CourseMain extends Activity {
 		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 		      @Override
 		      public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-		    	  final MoodleCourse item = (MoodleCourse) parent.getItemAtPosition(position);
+		    	  final String item = (String) parent.getItemAtPosition(position);
 		        
 		      }
 		    });
@@ -60,7 +55,7 @@ public class CourseMain extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	private class GetCoursesTask extends AsyncTask<String, Void, MoodleCourse[]> {
+	private class GetCoursesTask extends AsyncTask<String, Void, String[]> {
 		
 		private Context mContext;
 	    public GetCoursesTask (Context context){
@@ -68,20 +63,11 @@ public class CourseMain extends Activity {
 	    }
 		
 		@Override
-		protected MoodleCourse[] doInBackground(String... info) {
+		protected String[] doInBackground(String... info) {
 			MoodleRestService service = MoodleRestService.getService();
-			MoodleCourse[] courses = null;
 			if (service != null) {
-				try {
-					courses = MoodleRestEnrol.getUsersCourses(service.getUserId());
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (MoodleRestException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return courses;
+
+				return null;
 			}
 			else
 			{
@@ -90,12 +76,12 @@ public class CourseMain extends Activity {
 		}
 		
 		@Override
-		protected void onPostExecute(MoodleCourse[] result) {
+		protected void onPostExecute(String[] result) {
 			if (result != null) {
-				List<MoodleCourse> courses = Arrays.asList(result); 
+				List<String> courses = Arrays.asList(result); 
 				final CoursesArrayAdapter adapter = new CoursesArrayAdapter(mContext, android.R.layout.simple_list_item_1, courses);
 				lv.setAdapter(adapter);
-
+				
 			}
 			else
 			{
@@ -104,11 +90,11 @@ public class CourseMain extends Activity {
 		}
 	}
 	
-	private class CoursesArrayAdapter extends ArrayAdapter<MoodleCourse>
+	private class CoursesArrayAdapter extends ArrayAdapter<String>
 	{
-		HashMap<MoodleCourse, Integer> mIdMap = new HashMap<MoodleCourse, Integer>();
+		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
 		
-		public CoursesArrayAdapter(Context context, int textViewResourceId, List<MoodleCourse> objects) {
+		public CoursesArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
 			super(context, textViewResourceId);
 			for (int i = 0; i < objects.size(); ++i) {
 				mIdMap.put(objects.get(i), i);
@@ -117,7 +103,7 @@ public class CourseMain extends Activity {
 		
 		@Override
 		public long getItemId(int position) {
-			MoodleCourse item = getItem(position);
+			String item = getItem(position);
 			return mIdMap.get(item);
 		}
 		

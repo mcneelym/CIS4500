@@ -7,10 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
-import net.beaconhillcott.moodlerest.MoodleRestException;
-import net.beaconhillcott.moodlerest.MoodleRestWebService;
-import net.beaconhillcott.moodlerest.MoodleRestWebServiceException;
-import net.beaconhillcott.moodlerest.MoodleWebService;
 
 public class MoodleRestService {
 
@@ -27,21 +23,18 @@ public class MoodleRestService {
 		return userid;
 	}
 	
-	private MoodleRestService(String url, String username, String password) throws IOException, MoodleRestWebServiceException, MoodleRestException {
+	private MoodleRestService(String url, String username, String password) throws IOException {
 		this.url = url;
 		setToken(username, password);
-		MoodleWebService web = MoodleRestWebService.getSiteInfo();
-		userid = web.getUserId();
+		this.url = url + "webservice/rest/server.php";
+		//MoodleWebService web = MoodleRestWebService.getSiteInfo();
+		//userid = web.getUserId();
 	}
 	
 	public static MoodleRestService init(String url, String username, String password) {
 		try {
 			service = new MoodleRestService(url, username, password);
 		} catch (IOException e) {
-			return null;
-		} catch (MoodleRestWebServiceException e) {
-			return null;
-		} catch (MoodleRestException e) {
 			return null;
 		}
 		return service;
