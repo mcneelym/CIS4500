@@ -79,7 +79,6 @@ public class CoursesContentListAdapter extends BaseExpandableListAdapter {
 			convertView = inflater.inflate(R.layout.listrow_details, null);
 		}
 		text = (TextView) convertView.findViewById(R.id.textView1);
-		text.
 		text.setText(children);
 		return convertView;
 	}
