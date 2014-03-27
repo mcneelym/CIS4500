@@ -3,7 +3,6 @@
 
     <string name="app_name">MoodleMobile</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_main">Main</string>
     <string name="login_title">Login</string>
     <string name="title_activity_course_main">CourseMain</string>
