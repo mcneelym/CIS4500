@@ -1,5 +1,9 @@
 package com.example.moodlemobile;
 
+import java.io.File;
+import java.io.IOException;
+
+import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
@@ -12,7 +16,8 @@ import android.os.Build;
 
 public class MainActivity extends Activity {
 
-	private static final int REQUEST_CODE = 23;
+	private static final int REQUEST_CODE_LOGIN = 23;
+	private static final int REQUEST_CODE_COURSE = 24;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +25,22 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		
+		try {
+			File httpCacheDir = new File(this.getCacheDir(), "http");
+			long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+			HttpResponseCache.install(httpCacheDir, httpCacheSize);
+		}
+		catch (IOException e) {
+		
+		}
+		
 		if (MoodleRestService.getService() == null || MoodleRestService.getService().getToken().isEmpty()){
 			Intent intent = new Intent(this, LoginScreen.class);
-			this.startActivityForResult(intent, REQUEST_CODE);
+			this.startActivityForResult(intent, REQUEST_CODE_LOGIN);
+		} else if (MoodleRestService.getService() == null || MoodleRestService.getService().getCurrentCourseId() < 0) {
+			Intent intent = new Intent(this, SelectCoursesActivity.class);
+			this.startActivityForResult(intent, REQUEST_CODE_COURSE);
 		}
 	}
 
@@ -63,8 +81,13 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-	  if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-	    
+	  if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_LOGIN) {
+		  if (MoodleRestService.getService().getCurrentCourseId() < 0) {
+				Intent intent = new Intent(this, SelectCoursesActivity.class);
+				this.startActivityForResult(intent, REQUEST_CODE_COURSE);
+		  }
+	  } else if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_COURSE) {
+		  MoodleRestService.getService().setCurrentCourseId(data.getLongExtra("course", -1));
 	  }
 	} 
 	

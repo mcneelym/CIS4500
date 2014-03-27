@@ -38,6 +38,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.moodlemobile.MainActivity" />
         </activity>
+        <activity
+            android:name="com.example.moodlemobile.SelectCoursesActivity"
+            android:label="@string/title_activity_select_courses" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,73 +1,65 @@
 package com.example.moodlemobile;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
-import android.content.Context;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.ExpandableListActivity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.util.SparseArray;
 
-public class CourseMain extends Activity {
+public class CourseMain extends ExpandableListActivity {
 	
-	ListView lv;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		new GetCoursesTask(this).execute();
 		setContentView(R.layout.activity_course_main);
-		lv = (ListView) findViewById(R.id.listView1);
-		
-		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-		      @Override
-		      public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-		    	  final String item = (String) parent.getItemAtPosition(position);
-		        
-		      }
-		    });
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.course_main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+		new GetCoursesTask(this).execute();
 	}
 	
-	private class GetCoursesTask extends AsyncTask<String, Void, String[]> {
+	private class GetCoursesTask extends AsyncTask<String, Void,SparseArray<Group>> {
 		
-		private Context mContext;
-	    public GetCoursesTask (Context context){
+		private ExpandableListActivity mContext;
+	    public GetCoursesTask (ExpandableListActivity context){
 	         mContext = context;
 	    }
 		
 		@Override
-		protected String[] doInBackground(String... info) {
+		protected SparseArray<Group> doInBackground(String... info) {
 			MoodleRestService service = MoodleRestService.getService();
 			if (service != null) {
-
-				return null;
+				String json;
+				SparseArray<Group> array = new SparseArray<Group>();
+				try {
+					 json = service.getCourseInformation(service.getCurrentCourseId());
+				} catch (IOException e) {
+					return null;
+				}
+				try {
+					JSONArray jArray = new JSONArray(json);
+					JSONObject json_data = null;
+					for (int i = 0; i < jArray.length(); i++) {
+						json_data = jArray.getJSONObject(i);
+						Group g = new Group(json_data.getString("name"), json_data.getLong("id"), json_data.getInt("visible"));
+						JSONArray childArray = json_data.getJSONArray("modules");
+						for (int j = 0; j < childArray.length(); j++) {
+							JSONObject childData = childArray.getJSONObject(j);
+							GroupChild c = new GroupChild(childData.getString("name"), childData.getString("url"), childData.getString("modicon"), childData.getLong("id"), childData.getInt("visible"));
+							g.children.add(c);
+						}
+						array.append(i, g);
+					}
+				} catch (JSONException e) {
+					return null;
+				}
+				return array;
 			}
 			else
 			{
@@ -76,12 +68,10 @@ public class CourseMain extends Activity {
 		}
 		
 		@Override
-		protected void onPostExecute(String[] result) {
+		protected void onPostExecute(SparseArray<Group> result) {
 			if (result != null) {
-				List<String> courses = Arrays.asList(result); 
-				final CoursesArrayAdapter adapter = new CoursesArrayAdapter(mContext, android.R.layout.simple_list_item_1, courses);
-				lv.setAdapter(adapter);
-				
+				CoursesContentListAdapter adapter = new CoursesContentListAdapter(mContext, result);
+				((ExpandableListActivity)mContext).setListAdapter(adapter);
 			}
 			else
 			{
@@ -90,27 +80,36 @@ public class CourseMain extends Activity {
 		}
 	}
 	
-	private class CoursesArrayAdapter extends ArrayAdapter<String>
-	{
-		HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+	public class GroupChild {
+		public String name;
+		public String url;
+		public String modIcon;
+		public long id;	
+		public int visible;
 		
-		public CoursesArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
-			super(context, textViewResourceId);
-			for (int i = 0; i < objects.size(); ++i) {
-				mIdMap.put(objects.get(i), i);
-			}
-		}
-		
-		@Override
-		public long getItemId(int position) {
-			String item = getItem(position);
-			return mIdMap.get(item);
-		}
-		
-		@Override
-		public boolean hasStableIds() {
-			return true;
+		public GroupChild(String name, String url, String modIcon, long id, int visible) {
+			this.name = name;
+			this.id = id;
+			this.visible = visible;
+			this.url = url;
+			this.modIcon = modIcon;
 		}
 	}
+	
+	public class Group {
+		
+		public String name;
+		public long id;
+		public int visible;
+		public final List<GroupChild> children = new ArrayList<GroupChild>();
+		
+		public Group(String name, long id, int visible) {
+			this.name = name;
+			this.id = id;
+			this.visible = visible;
+		}
+	
+	} 
+	
 
 }
