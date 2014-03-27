@@ -1,3 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <issue id="SetJavaScriptEnabled">
+        <ignore path="src/com/example/moodlemobile/WebViewActivity.java" />
+    </issue>
 </lint>
