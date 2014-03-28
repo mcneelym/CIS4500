@@ -26,6 +26,8 @@ public class MainActivity extends Activity {
 		// Show the Up button in the action bar.
 		setupActionBar();
 		
+		//Setup caching at the http request level
+		//This actually works fairly poorly since the moodle responses tell it to not cache
 		try {
 			File httpCacheDir = new File(this.getCacheDir(), "http");
 			long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
@@ -35,6 +37,7 @@ public class MainActivity extends Activity {
 		
 		}
 		
+		//If we do not have a logged in user or course selected then go to the appropriate page
 		if (MoodleRestService.getService() == null || MoodleRestService.getService().getToken().isEmpty()){
 			Intent intent = new Intent(this, LoginScreen.class);
 			this.startActivityForResult(intent, REQUEST_CODE_LOGIN);
@@ -79,6 +82,7 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	//Handle feedback from pages we have opened and expect a response from
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 	  if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_LOGIN) {
@@ -91,6 +95,8 @@ public class MainActivity extends Activity {
 	  }
 	} 
 	
+	
+	//Handle button clicks for working pages
 	/** Called when the user clicks the course contents button */
 	public void courseContents(View view) {
 		Intent intent = new Intent(this, CourseMain.class);

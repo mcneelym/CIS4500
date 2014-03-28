@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class LoginScreen extends Activity {
 
@@ -42,12 +43,17 @@ public class LoginScreen extends Activity {
 		String username = ((TextView)findViewById(R.id.editUsername)).getText().toString();
 		String password = ((TextView)findViewById(R.id.editPassword)).getText().toString();
 		
+		//Make sure we have network connectivity
 		ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		if (networkInfo != null && networkInfo.isConnected()) {
-			 new LoginTask().execute(url, username, password);
+			//Call the login task
+			Toast toast = Toast.makeText(this, "logging in...", Toast.LENGTH_SHORT);
+			toast.show();
+			 new LoginTask(this).execute(url, username, password);
 		} else {
-			//TODO: Error
+			Toast toast = Toast.makeText(this, "Network error", Toast.LENGTH_LONG);
+			toast.show();
 		}
 	}
 	
@@ -60,9 +66,18 @@ public class LoginScreen extends Activity {
 	} 
 	
 	 private class LoginTask extends AsyncTask<String, Void, String> {
+		 
+		 Context mContext;
+		 
+		 public LoginTask(Context m) {
+			 mContext = m;
+		 }
+		 
 		@Override
 		protected String doInBackground(String... info) {
+			//Try to create a moodle service object
 			MoodleRestService service = MoodleRestService.init(info[0], info[1], info[2]);
+			//If we made an object it means we are logged in, else some sort of error
 			if (service != null) {
 				return service.getToken();
 			}
@@ -74,12 +89,14 @@ public class LoginScreen extends Activity {
 		
 		@Override
         protected void onPostExecute(String result) {
+			//If we were successful go back to the main page
             if (result != null) {
             	finish();
             }
             else
             {
-            	
+            	Toast toast = Toast.makeText(mContext, "Failed to login", Toast.LENGTH_LONG);
+    			toast.show();
             }
        }
 	 }
