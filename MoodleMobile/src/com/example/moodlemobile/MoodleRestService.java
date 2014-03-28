@@ -18,10 +18,23 @@ public class MoodleRestService {
 	private String username;
 	private String fname;
 	private String lname;
+	private String password;
 	private long userid;
 	private long currentCourseId = -1;
 	
 	private static MoodleRestService service = null;
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+	
+	public String getUrl() {
+		return url;
+	}
 	
 	public String getToken() {
 		return token;
@@ -52,8 +65,12 @@ public class MoodleRestService {
 	
 	private MoodleRestService(String url, String username, String password) throws IOException, JSONException {
 		this.url = url;
-		setToken(username, password);
-		this.url = url + "webservice/rest/server.php";
+		this.password = password;
+		//if (url == "https://bucky.socs.uoguelph.ca/mobiledev/" && username == "mobilemoodletest" && password == "mobiletest") {
+		//	token = "528bed0b350a9f39039fdc2d13b8ad5b";
+		//} else {
+			setToken(username, password);
+		//}
 		getUserInfo();
 	}
 	
@@ -73,11 +90,11 @@ public class MoodleRestService {
 	}
 	
 	private void setToken(String username, String password) throws IOException {
-		url = url + "login/token.php";
+		String turl = url + "login/token.php";
 		String params = "username=" + username + "&password=" + password + "&service=moodle_mobile_app";
 
 		
-		URL obj = new URL(url);
+		URL obj = new URL(turl);
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		con.addRequestProperty("Cache-Control", "max-age=0");
 		con.setRequestMethod("POST");
@@ -108,7 +125,7 @@ public class MoodleRestService {
 
 	public String callMoodleFunction(String function, String options) throws IOException {
 		String params = "moodlewsrestformat=json&wsfunction=" + function + "&wstoken=" + token + "&" + options;
-		URL obj = new URL(url);
+		URL obj = new URL(url + "webservice/rest/server.php");
 		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 		con.setRequestMethod("POST");
  
